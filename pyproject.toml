@@ -1,0 +1,22 @@
+[project]
+name = "epuboost"
+version = "0.1.0"
+description = "Optimize EPUBs for fast page turns on Kobo and other e-readers"
+readme = "README.md"
+authors = [
+    { name = "Migue8gl", email = "migue8gl@proton.me" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fonttools>=4.67.0",
+    "lxml>=6.1.3",
+    "pillow>=13.0.0",
+    "tinycss2>=1.5.1",
+]
+
+[project.scripts]
+epuboost = "epuboost:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
