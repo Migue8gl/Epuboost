@@ -8,7 +8,7 @@ occasional crash. `epuboost` fixes the books themselves, so they stay plain `.ep
 on any device.
 
 ```
-✔ The Nature of Code - Shiffman, Daniel.epub: 9.9 MB → 5.2 MB
+✔ Book Title - Author Name.epub: 9.9 MB → 5.2 MB
 ```
 
 ## What it does
@@ -87,9 +87,9 @@ epuboost ~/"Calibre Library" --analyze
 Pass a whole library, an author's folder or a single book. Folders are searched recursively:
 
 ```sh
-epuboost ~/"Calibre Library"                               # whole library
-epuboost ~/"Calibre Library/Shiffman, Daniel"              # one author
-epuboost ~/"Calibre Library/Author/Title (31)/book.epub"   # one book
+epuboost ~/"Calibre Library"                                         # whole library
+epuboost ~/"Calibre Library/Author Name"                             # one author
+epuboost ~/"Calibre Library/Author Name/Book Title (31)/book.epub"   # one book
 ```
 
 To preview every change without writing anything, add `--dry-run --verbose`.
@@ -101,9 +101,9 @@ Calibre:
 
 ```
 output/
-└── Shiffman, Daniel/
-    └── The Nature of Code (31)/
-        └── The Nature of Code - Shiffman, Daniel.epub
+└── Author Name/
+    └── Book Title (31)/
+        └── Book Title - Author Name.epub
 ```
 
 Running `epuboost` again overwrites existing files in `./output`, so you never end up with
