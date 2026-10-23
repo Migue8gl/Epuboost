@@ -12,10 +12,23 @@
   Windows (x64, arm64), macOS (Intel, Apple Silicon) and Linux (glibc and musl, x64 and arm64),
   and uv downloads Python itself if needed, so nothing needs to be compiled on install.
 - Not dockerized, on purpose: see `backlog.md`.
-- Tested only on Linux. Windows-specific path and console issues were fixed and checked by
-  simulation (`ntpath`, non-UTF-8 stdout), not on a real Windows or macOS machine.
+- CI (`.github/workflows/tests.yml`) runs the tests on Ubuntu, macOS and Windows with Python 3.12
+  and 3.15. Locally they pass on Linux with 3.12 and 3.15.
+
+## Tests
+
+```sh
+uv run pytest
+```
+
+`tests/conftest.py` builds a synthetic EPUB with every problem the tool fixes (embedded font,
+oversized WebP, a 200 KB chapter, a missing manifest entry, an Adobe page template link, `<br>`
+in code blocks, a non-Latin title). `tests/test_cli.py` runs the installed `epuboost` command on
+it and checks the result: originals untouched, valid zip, every TOC and chapter link still
+resolving, `--kepub`, `--dry-run` and `--in-place`. Output is forced to cp1252, Windows' legacy
+code page, so every platform checks that printing ✔, → and non-Latin titles doesn't crash.
 
 ## Known limitations
 
-- No automated tests or CI.
+- Tests are end-to-end only; individual steps have no unit tests.
 - Not published on PyPI; installing needs `git` and uv.
