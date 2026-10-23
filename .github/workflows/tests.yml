@@ -17,7 +17,7 @@ jobs:
         python: ["3.12", "3.15"]  # oldest supported and newest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2  # no floating major tags are published
         with:
           python-version: ${{ matrix.python }}
       - run: uv run --locked pytest -v
