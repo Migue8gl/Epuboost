@@ -13,7 +13,8 @@ from .optimize import DEFAULT_STEPS, STEPS, Result, Settings, optimize
 
 def library_path(epub: str, kepub: bool = False) -> str:
     """Calibre-style relative path: Author/Title (id)/book.epub (or .kepub.epub)."""
-    parts = os.path.abspath(epub).split(os.sep)
+    # Drop the drive first: on Windows, joining "D:" with the rest yields a drive-relative path.
+    parts = os.path.splitdrive(os.path.abspath(epub))[1].split(os.sep)
     path = os.path.join(*parts[-3:])
     return os.path.splitext(path)[0] + ".kepub.epub" if kepub else path
 
@@ -70,6 +71,8 @@ def report(r: Result, verbose: bool) -> None:
 
 
 def main() -> None:
+    # Windows writes redirected output in its legacy code page, which can't encode ✔, → or many titles.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
         prog="epuboost",
         description="Make EPUBs fast on Kobo. By default these steps run: "
@@ -86,7 +89,8 @@ def main() -> None:
     parser.add_argument("-n", "--dry-run", action="store_true", help="only report, don't write anything")
     parser.add_argument("-f", "--force", action="store_true", help="re-process books already optimized")
     parser.add_argument("-v", "--verbose", action="store_true", help="show what was done to each book")
-    parser.add_argument("-j", "--jobs", type=int, default=os.cpu_count(), help="parallel workers")
+    # None lets ProcessPoolExecutor pick the CPU count, capped at Windows' limit of 61 workers.
+    parser.add_argument("-j", "--jobs", type=int, default=None, help="parallel workers (default: CPU count)")
 
     steps = parser.add_argument_group("choosing steps")
     choice = steps.add_mutually_exclusive_group()
