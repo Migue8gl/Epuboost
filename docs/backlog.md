@@ -2,7 +2,6 @@
 
 ## High priority
 
-- [ ] **Check the first CI run on Windows and macOS** and fix whatever only fails there.
 - [ ] **Publish to PyPI**, so `uvx epuboost` / `pipx install epuboost` work without git or a clone.
 - [ ] **Unit tests per step** (`--keep-fonts` subsetting with a real font, CMYK/progressive JPEGs,
       PNG with alpha, `--grayscale`, nested wrapper `<div>`s when splitting, DRM detection). The
@@ -24,7 +23,7 @@
 ## Done
 
 - [x] End-to-end tests (`tests/`) on a synthetic EPUB with every problem the tool fixes, run in
-      GitHub Actions on Linux, macOS and Windows with Python 3.12 and 3.15.
+      GitHub Actions on Linux, macOS and Windows with Python 3.12 and 3.15. First run all green.
 - [x] Windows: books within two folders of a drive root (`D:\Books\book.epub`) were written to a
       drive-relative path instead of `--output`, which could overwrite the original.
 - [x] Windows: redirecting output to a file or pipe crashed with `UnicodeEncodeError` (✔, → and
