@@ -54,6 +54,7 @@ def test_analyze_reports_every_problem(library: Path, tmp_path: Path) -> None:
     assert "chapters: 1 over 80 KB" in out
     assert "larger than 1264x1680" in out and "in formats Kobo can't show" in out
     assert "broken: 1 manifest entries point to missing files" in out
+    assert "pagination: 3 line breaks" in out  # two in <pre>, one display: block
     assert "1 need work" in out
     assert not (tmp_path / "output").exists()
 
@@ -83,11 +84,16 @@ def test_optimize_fixes_book(library: Path, tmp_path: Path) -> None:
     spine = [ref.get("idref") for ref in opf.iter(f"{OPF_NS}itemref")]
     assert all(idref in items for idref in spine)
 
-    # clean: missing manifest entry, Adobe page template link and <br> in code blocks are gone
+    # clean: missing manifest entry, Adobe page template link and <br> in code blocks are gone,
+    # and block line breaks are inline again without touching divs or hidden ones
     assert "gone" not in items
     assert b"page-template.xpgt" not in files["OEBPS/text/chapter1.xhtml"]
-    pre = etree.fromstring(files["OEBPS/text/chapter2.xhtml"]).find(".//{*}pre")
+    chapter2 = etree.fromstring(files["OEBPS/text/chapter2.xhtml"])
+    pre = chapter2.find(".//{*}pre")
     assert pre.find("{*}br") is None and pre.text == "first line\nsecond line\nthird line"
+    styles = {br.get("class"): br.get("style") for br in chapter2.iter("{*}br")}
+    assert styles == {"calibre5": "display: inline", "hide": None}
+    assert chapter2.find(".//{*}div").get("style") is None
 
     # fonts: font files and families removed, code stays monospace
     assert not any(name.endswith(".ttf") for name in files)

@@ -17,7 +17,7 @@ on any device.
 
 | Step | What it does |
 |---|---|
-| `clean` | Removes links to missing files (like Calibre's `page-template.xpgt`) and orphan manifest entries. Also turns `<br>` inside code blocks into plain newlines, which otherwise make Kobo skip or repeat pages. |
+| `clean` | Removes links to missing files (like Calibre's `page-template.xpgt`) and orphan manifest entries. Also fixes line breaks that make Kobo skip or repeat lines and pages: `<br>` inside code blocks become plain newlines, and `<br>` styled as blocks (common in Calibre conversions, e.g. blank lines between paragraphs) are made inline again. |
 | `fonts` | Removes embedded fonts and `font-family` rules, so the book uses your e-reader's fonts. Code blocks stay `monospace`. |
 | `images` | Fits images to the screen and recompresses them, fixes CMYK and progressive JPEGs, and converts WebP, AVIF, BMP and TIFF (which Kobo can't display) to JPEG or PNG. |
 | `split` | Breaks chapters larger than 80 KB into smaller files, and updates every link and the table of contents to match. |
@@ -78,8 +78,9 @@ epuboost ~/"Calibre Library" --analyze
            fonts: 2 embedded (1.0 MB, 2 oversized)
            chapters: 1 over 80 KB (largest 129 KB)
            images: 9.9 MB total, 2 larger than 1264x1680, 1 in formats Kobo can't show
+           pagination: 3 line breaks that can make pages repeat or skip lines
 
-2 books (16.2 MB): 2 need work (2 fonts, 1 chapters, 1 images), 0 look fine.
+2 books (16.2 MB): 2 need work (2 fonts, 1 chapters, 1 images, 1 pagination), 0 look fine.
 ```
 
 ### 2. Optimize
@@ -159,5 +160,5 @@ Elipsa `1404x1872`.
 - Hidden folders (like `.caltrash`), `.kepub.epub` files and Calibre's `.original_epub` backups
   are ignored.
 - With `--in-place`, processed books get a `<meta name="epuboost">` marker and are skipped on later
-  runs. Use `-f` to process them again.
+  runs, until a newer epuboost brings fixes they don't have yet. Use `-f` to process them again.
 - DRM-protected books can't be optimized. `--analyze` flags them.

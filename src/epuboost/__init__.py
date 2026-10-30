@@ -54,7 +54,7 @@ def find_epubs(paths: list[str], exclude: str | None = None) -> list[str]:
 
 
 def _mb(n: int) -> str:
-    return f"{n / 1e6:.1f} MB"
+    return f"{round(n / 1e6, 1) + 0:.1f} MB"  # + 0 turns -0.0 into 0.0
 
 
 def report(r: Result, verbose: bool) -> None:

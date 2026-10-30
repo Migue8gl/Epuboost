@@ -7,79 +7,10 @@ import posixpath
 
 from lxml import etree
 
-from .epub import NS, OPF_NS, XHTML_NS, XLINK_HREF, Book, localname, parse_xml, relative_href, resolve, serialize_xhtml, serialize_xml
+from .epub import NS, OPF_NS, XLINK_HREF, Book, localname, parse_xml, relative_href, resolve, serialize_xhtml, serialize_xml
 
 HEADINGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
 WRAPPERS = {"div", "section", "article", "main"}
-
-
-
-def remove_broken_links(book: Book, log: list[str]) -> None:
-    """Drop <link> elements (e.g. Adobe page templates) pointing to missing files."""
-    removed = 0
-    for path in book.xhtml_paths():
-        try:
-            tree = parse_xml(book.files[path])
-        except etree.XMLSyntaxError:
-            continue
-        dirty = False
-        for link in tree.getroot().iter(f"{{{XHTML_NS}}}link"):
-            target = resolve(path, link.get("href", ""))
-            if target is not None and target not in book.files:
-                _drop(link)
-                dirty = True
-                removed += 1
-        if dirty:
-            book.write(path, serialize_xhtml(tree))
-    for item in book.items():
-        if book.item_path(item) not in book.files:
-            book.remove(book.item_path(item))
-            log.append(f"removed manifest entry for missing {item.get('href')}")
-    if removed:
-        log.append(f"removed {removed} links to missing files")
-
-
-def fix_pre_breaks(book: Book, log: list[str]) -> None:
-    """Turn <br> inside <pre> into plain newlines.
-
-    Converters like Calibre emit `line<br/>\\n` in code blocks, often with a
-    `display: block` rule on the <br>. RMSDK measures those lines differently
-    when laying out and when rendering, which makes it skip or repeat pages.
-    """
-    fixed = 0
-    for path in book.xhtml_paths():
-        try:
-            tree = parse_xml(book.files[path])
-        except etree.XMLSyntaxError:
-            continue
-        dirty = False
-        for pre in tree.getroot().iter(f"{{{XHTML_NS}}}pre"):
-            # XML parsers keep the newline right after <pre> that HTML drops.
-            if pre.text and pre.text.startswith("\n"):
-                pre.text = pre.text[1:]
-                dirty = True
-            for br in list(pre.iter(f"{{{XHTML_NS}}}br")):
-                if not (br.tail or "").startswith("\n"):
-                    br.tail = "\n" + (br.tail or "")
-                _drop(br)
-                dirty = True
-                fixed += 1
-        if dirty:
-            book.write(path, serialize_xhtml(tree))
-    if fixed:
-        log.append(f"replaced {fixed} line breaks in code blocks")
-
-
-def _drop(el) -> None:
-    """Remove an element while keeping its tail text."""
-    parent = el.getparent()
-    if el.tail:
-        prev = el.getprevious()
-        if prev is not None:
-            prev.tail = (prev.tail or "") + el.tail
-        else:
-            parent.text = (parent.text or "") + el.tail
-    parent.remove(el)
 
 
 def _container_path(body) -> list[int]:

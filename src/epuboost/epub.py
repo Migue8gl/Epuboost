@@ -21,7 +21,7 @@ ENC_NS = "http://www.w3.org/2001/04/xmlenc#"
 NS = {"opf": OPF_NS, "h": XHTML_NS}
 
 MARKER_NAME = "epuboost"
-MARKER_VERSION = "1"
+MARKER_VERSION = "2"  # bump when a new fix should reach books already processed in place
 
 XHTML_TYPES = {"application/xhtml+xml", "text/html"}
 FONT_EXTS = {".ttf", ".otf", ".woff", ".woff2"}
@@ -181,18 +181,22 @@ class Book:
                 return self.item_path(i)
         return None
 
+    def _marker(self):
+        return next((m for m in self.opf.iter(f"{{{OPF_NS}}}meta") if m.get("name") == MARKER_NAME), None)
+
     def has_marker(self) -> bool:
-        return any(
-            m.get("name") == MARKER_NAME
-            for m in self.opf.iter(f"{{{OPF_NS}}}meta")
-        )
+        """Whether this version of epuboost already processed the book."""
+        marker = self._marker()
+        return marker is not None and marker.get("content") == MARKER_VERSION
 
     def add_marker(self) -> None:
-        metadata = self.opf.find("opf:metadata", NS)
-        meta = etree.SubElement(metadata, f"{{{OPF_NS}}}meta")
-        meta.set("name", MARKER_NAME)
+        meta = self._marker()
+        if meta is None:
+            metadata = self.opf.find("opf:metadata", NS)
+            meta = etree.SubElement(metadata, f"{{{OPF_NS}}}meta")
+            meta.set("name", MARKER_NAME)
+            meta.tail = "\n  "
         meta.set("content", MARKER_VERSION)
-        meta.tail = "\n  "
 
     def unique_id(self, base: str) -> str:
         ids = {el.get("id") for el in self.opf.iter() if el.get("id")}

@@ -79,6 +79,8 @@ NCX = """<?xml version="1.0" encoding="utf-8"?>
 CSS = """@font-face { font-family: "Fancy"; src: url(fonts/fancy.ttf); }
 body { font-family: "Fancy", serif; margin: 0 }
 pre { font-family: "Fancy Mono", monospace }
+.calibre5 { display: block }
+.hide { display: none }
 """
 
 PARAGRAPH = "<p>" + "This sentence pads the chapter so that it has to be split. " * 15 + "</p>\n"
@@ -109,6 +111,9 @@ CHAPTER2 = """<?xml version="1.0" encoding="utf-8"?>
 <head><title>Chapter 2</title><link rel="stylesheet" type="text/css" href="../style.css"/></head>
 <body>
 <p>Back to <a href="chapter1.xhtml#s3">section three</a>.</p>
+<p><br class="calibre5"/></p>
+<div class="calibre5">Calibre shares the class of block line breaks with divs.</div>
+<p>Hidden<br class="hide"/> line break.</p>
 <pre>
 first line<br/>
 second line<br/>

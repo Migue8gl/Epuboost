@@ -7,11 +7,12 @@ import shutil
 import tempfile
 from dataclasses import dataclass, field
 
+from .clean import fix_block_breaks, fix_pre_breaks, remove_broken_links
 from .epub import Book
 from .fonts import clean_font_faces, strip_fonts, subset_fonts
 from .images import optimize_images
 from .kepub import convert_to_kepub
-from .split import fix_pre_breaks, remove_broken_links, split_large_files
+from .split import split_large_files
 
 STEPS = ("clean", "fonts", "images", "split", "kepub")
 DEFAULT_STEPS = frozenset(STEPS) - {"kepub"}  # kepub changes the file format: opt-in
@@ -70,6 +71,7 @@ def optimize(path: str, dest: str | None, settings: Settings) -> Result:
             if "clean" in steps:
                 remove_broken_links(book, result.log)
                 fix_pre_breaks(book, result.log)
+                fix_block_breaks(book, result.log)
             if "fonts" in steps and not settings.keep_fonts:
                 strip_fonts(book, result.log)
             elif "fonts" in steps:

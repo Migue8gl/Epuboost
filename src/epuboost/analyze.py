@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from PIL import Image
 
+from .clean import fix_block_breaks, fix_pre_breaks
 from .epub import FONT_EXTS, Book
 from .images import NATIVE_FORMATS
 from .optimize import Settings
@@ -73,6 +74,11 @@ def analyze(path: str, settings: Settings) -> Analysis:
     ]
     if problems:
         a.issues["images"] = f"{_mb(image_bytes)} total, " + ", ".join(problems)
+
+    # Fixing them on the in-memory copy counts them; it is never saved.
+    breaks = fix_pre_breaks(book, []) + fix_block_breaks(book, [])
+    if breaks:
+        a.issues["pagination"] = f"{breaks} line breaks that can make pages repeat or skip lines"
 
     missing = [i.get("href") for i in book.items() if book.item_path(i) not in book.files]
     if missing:
